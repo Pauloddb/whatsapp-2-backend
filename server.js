@@ -17,10 +17,25 @@ const io = new Server(server, {
 });
 
 
-const messages = [];
+let messages = [];
+let users = [];
+
+app.get('/getOnlineUsers', (req, res) => {
+    res.json({ users: users.length });
+});
+
+
+app.get('/getMessages', (req, res) => {
+    res.json({ messages: messages });
+});
+
+
 
 io.on('connection', (socket) => {
+    io.emit('updateOnlineUsers', users.push(socket.id));
+
     console.log(`Novo cliente conectado: ${socket.id}`);
+
 
     socket.on('message', (data) => {
         console.log(`Mensagem recebida do cliente ${socket.id}: ${data.message}`);
@@ -29,11 +44,16 @@ io.on('connection', (socket) => {
     });
 
 
-    socket.on('getMessages', (callback) => {
-        callback(messages);
+    socket.on('deleteMessage', (id) => {
+        messages = messages.filter(message => message.id !== id);
+        io.emit('deleteMessage', id);
     });
 
+
     socket.on('disconnect', () => {
+        users = users.filter(id => id !== socket.id);
+        io.emit('updateOnlineUsers', users.length);
+
         console.log(`Cliente desconectado: ${socket.id}`);
     });
 });
