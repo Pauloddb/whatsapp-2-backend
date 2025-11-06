@@ -11,7 +11,7 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: 'https://whatsapp-2-bxkt.onrender.com',
+        origin: '*',
         methods: ['GET', 'POST']
     }
 });
@@ -63,4 +63,5 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 });
+
 
