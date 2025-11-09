@@ -6,23 +6,21 @@ const http = require('http');
 const app = express();
 const port = 3000;
 
+app.use(express.json());
 app.use(cors());
 
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: 'http://localhost:5173',
         methods: ['GET', 'POST']
     }
 });
 
 
 let messages = [];
+let onlineUsers = [];
 let users = [];
-
-app.get('/getOnlineUsers', (req, res) => {
-    res.json({ users: users.length });
-});
 
 
 app.get('/getMessages', (req, res) => {
@@ -30,9 +28,41 @@ app.get('/getMessages', (req, res) => {
 });
 
 
+app.post('/addUser', (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    const newUser = {
+        username: username,
+        password: password
+    }
+
+    console.log(newUser, users)
+    if (!users.find(user => user.username === newUser.username && user.password === newUser.password)){
+        users.push(newUser);
+        res.json({ status: true, message: 'Usuário cadastrado com sucesso!' });
+    } else {
+        res.json({ status: false, message: 'Usuário já cadastrado!' });
+    }
+});
+
+
+app.post('/login', (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    if (users.find(user => user.username === username && user.password === password)){
+        res.json({ status: true, message: 'Usuário logado com sucesso!' });
+    } else {
+        res.json({ status: false, message: 'Usuário não encontrado!' });
+    }
+});
+
 
 io.on('connection', (socket) => {
-    io.emit('updateOnlineUsers', users.push(socket.id));
+    onlineUsers.push(socket.id);
+    console.log(onlineUsers.length);
+    io.emit('updateOnlineUsers', onlineUsers.length);
 
     console.log(`Novo cliente conectado: ${socket.id}`);
 
@@ -51,8 +81,8 @@ io.on('connection', (socket) => {
 
 
     socket.on('disconnect', () => {
-        users = users.filter(id => id !== socket.id);
-        io.emit('updateOnlineUsers', users.length);
+        onlineUsers = onlineUsers.filter(id => id !== socket.id);
+        io.emit('updateOnlineUsers', onlineUsers.length);
 
         console.log(`Cliente desconectado: ${socket.id}`);
     });
@@ -63,5 +93,3 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 });
-
-
