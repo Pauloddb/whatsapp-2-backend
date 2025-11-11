@@ -48,7 +48,7 @@ let onlineUsers = [];
 
 app.get('/ping', (req, res) => {
     console.log('Recebido PING do cliente.');
-    res.status(200).send('PONG');
+    res.status(200).json({ message: 'PONG' });
 });
 
 
@@ -159,6 +159,7 @@ server.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 
 });
+
 
 
 
