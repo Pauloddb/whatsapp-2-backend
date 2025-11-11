@@ -41,9 +41,8 @@ const io = new Server(server, {
 });
 
 
-let messages = [];
+
 let onlineUsers = [];
-let users = [];
 
 
 
@@ -158,4 +157,5 @@ io.on('connection', (socket) => {
 
 server.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
+
 });
