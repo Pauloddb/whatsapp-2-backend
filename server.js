@@ -55,7 +55,7 @@ app.get('/ping', (req, res) => {
 
 app.get('/getMessages', async (req, res) => {
     try {
-        const messages = await MessageSchema.find();
+        const messages = await MessageSchema.find().sort({ id: 1 });
         res.json({ messages: messages });
     } catch (error) {
         console.error('Erro ao buscar mensagens:', error);
@@ -159,5 +159,6 @@ server.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
 
 });
+
 
 
